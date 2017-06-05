@@ -43,11 +43,10 @@
     
     self.qurasTbl.delegate=self;
     self.qurasTbl.dataSource=self;
-    self.qurasTbl.frame=CGRectMake(0, 150, self.view.frame.size.width, self.view.frame.size.height/1.3);
-    if (self.quranSegment.selectedSegmentIndex==0) {
+    //self.qurasTbl.frame=CGRectMake(0, 150, self.view.frame.size.width, self.view.frame.size.height/1.3);
+   
         urlString = [NSMutableString stringWithFormat:@"%@/quranQS.jsp?username=sk&password=sk123&mobno=",self.URL];
         [self songsLoaded];
-    }
     
 }
 -(void)songsLoaded{
@@ -85,8 +84,8 @@
                     DataUtility *objSongsData = [[DataUtility alloc]init];
                     objSongsData.tuneid = [objDictionary1 objectForKey:@"tuneid"];
                     objSongsData.songname = [objDictionary1 objectForKey:@"songname"];
-                    objSongsData.imagename=[objDictionary1 objectForKey:@"imagename"];
-                    objSongsData.imagepath=[objDictionary1 objectForKey:@"imagepath"];
+                    objSongsData.txtName=[objDictionary1 objectForKey:@"text_name"];
+                    objSongsData.txtPath=[objDictionary1 objectForKey:@"text_path"];
                     [songsArray addObject:objSongsData];
                     [self.qurasTbl reloadData];
                     
@@ -146,7 +145,7 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:[UIColor clearColor]];
+    [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:[UIColor redColor]];
     
     QuranContentVC *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"QuranContentVC"];
     //    EFBasicViewController *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"EFBasicViewController"];
@@ -158,25 +157,16 @@
     NSLog(@"%ld",(long)indexPath.row);
            
 }
-- (IBAction)segmentChange:(id)sender {
-    if (self.quranSegment.selectedSegmentIndex==0) {
-        songsArray= [[NSMutableArray alloc]init];
-        [self.qurasTbl reloadData];
-        NSString *mobNo=[[NSUserDefaults standardUserDefaults] objectForKey:@"MobNumber"];
-        urlString = [NSMutableString stringWithFormat:@"%@/quranQS.jsp?username=sk&password=sk123&mobno=%@",self.URL,mobNo];
-        [self songsLoaded];
-    }
-    if (self.quranSegment.selectedSegmentIndex==1) {
-        songsArray= [[NSMutableArray alloc]init];
-        [self.qurasTbl reloadData];
-        NSString *mobNo=[[NSUserDefaults standardUserDefaults] objectForKey:@"MobNumber"];
-        urlString = [NSMutableString stringWithFormat:@"%@/quranTranslationQS.jsp?username=sk&password=sk123&mobno=%@",self.URL,mobNo];
-        [self songsLoaded];
-    }
-    
-    
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
 }
-
+- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Add your Colour.
+    CustomCell *cell = (CustomCell *)[tableView cellForRowAtIndexPath:indexPath];
+    cell.contentView.backgroundColor=[UIColor colorWithRed:15.0/255.0 green:108.0/255.0 blue:51.0/255.0 alpha:1];
+    //cell.backgroundColor=[UIColor greenColor];
+   // [self setCellColor:[UIColor whiteColor] ForCell:cell];  //highlight colour
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

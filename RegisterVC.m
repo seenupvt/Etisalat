@@ -18,7 +18,11 @@
 NSString *errorMessage;
 NSString *reglink;
 NSString *OTPstring;
+
 }
+
+@property (nonatomic, strong) UIPickerView *pickerView;
+@property (nonatomic, strong) NSArray *pickerNames;
 
 @end
 
@@ -28,9 +32,19 @@ NSString *OTPstring;
     [super viewDidLoad];
     [self.navigationController setNavigationBarHidden:YES];
     // for splash screen animation
-   // [self addPickerView];
+   //[self addPickerView];
     
     // Do any additional setup after loading the view.
+    
+    self.pickerView = [[UIPickerView alloc] init];
+    self.pickerView.delegate = self;     //#2
+    self.pickerView.dataSource = self;   //#2
+    
+    self.genderTxtFld.inputView = self.pickerView;
+    
+    self.pickerNames = @[ @"Male", @"Female"];
+    
+    
 }
 
 
@@ -39,56 +53,40 @@ NSString *OTPstring;
     
 }
 
--(void)addPickerView{
-    pickerArray = [[NSArray alloc] initWithObjects:@"MALE",@"FEMALE", nil];
-    myTextField = [[UITextField alloc]initWithFrame:
-                   CGRectMake(10, 50, 300, 30)];
-    myTextField.borderStyle = UITextBorderStyleRoundedRect;
-    myTextField.textAlignment = UITextAlignmentCenter;
-    myTextField.delegate = self;
-    [self.view addSubview:myTextField];
-    [myTextField setPlaceholder:@"Select a Subject"];
-    myPickerView = [[UIPickerView alloc]init];
-    myPickerView.dataSource = self;
-    myPickerView.delegate = self;
-    myPickerView.showsSelectionIndicator = YES;
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc]
-                                   initWithTitle:@"Done" style:UIBarButtonItemStyleDone
-                                   target:self action:@selector(done:)];
-    UIToolbar *toolBar = [[UIToolbar alloc]initWithFrame:
-                          CGRectMake(0,self.view.frame.size.height-myPickerView.frame.size.height-50, 320, 50)];
-    [toolBar setBarStyle:UIBarStyleBlackOpaque];
-    NSArray *toolbarItems = [NSArray arrayWithObjects: 
-                             doneButton, nil];
-    [toolBar setItems:toolbarItems];
-    myTextField.inputView = myPickerView;
-    myTextField.inputAccessoryView = toolBar;
-    
-}
 
--(void)textFieldDidBeginEditing:(UITextField *)textField{
-    if ([textField.text isEqualToString:@""]) {
-        //[self dateChanged:nil];
+-(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    if (pickerView == self.pickerView) {
+        return 1;
     }
-}
-#pragma mark - Picker View Data source
--(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
-    return 1;
-}
--(NSInteger)pickerView:(UIPickerView *)pickerView
-numberOfRowsInComponent:(NSInteger)component{
-    return [pickerArray count];
+    
+    return 0;
 }
 
-#pragma mark- Picker View Delegate
-
--(void)pickerView:(UIPickerView *)pickerView didSelectRow:
-(NSInteger)row inComponent:(NSInteger)component{
-    [myTextField setText:[pickerArray objectAtIndex:row]];
+// #4
+-(NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    if (pickerView == self.pickerView) {
+        return [self.pickerNames count];
+    }
+    
+    return 0;
 }
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:
-(NSInteger)row forComponent:(NSInteger)component{
-    return [pickerArray objectAtIndex:row];
+
+#pragma mark - UIPickerViewDelegate
+
+// #5
+-(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    if (pickerView == self.pickerView) {
+        return self.pickerNames[row];
+    }
+    
+    return nil;
+}
+
+// #6
+-(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    if (pickerView == self.pickerView) {
+        self.genderTxtFld.text = self.pickerNames[row];
+    }
 }
 
 - (IBAction)regClick:(id)sender {
@@ -109,8 +107,8 @@ numberOfRowsInComponent:(NSInteger)component{
         UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Warning" message:@"mobileNumber/username/password/gender/city/age cannot be empty" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
         [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
     }
-    else if (mob.length!=9) {
-        UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Warning" message:@"mobileNumber must be 9-digit" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+    else if (mob.length>10) {
+        UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Warning" message:@"Enter Proper mobileNumber" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
         [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
     }
     else{
@@ -213,7 +211,7 @@ numberOfRowsInComponent:(NSInteger)component{
     if (textField.tag==102) {                //mobile number text field
         if([string length]>0)
         {
-            if([textField.text length]<9){
+            if([textField.text length]<10){
                 NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:ACCEPTABLE_CHARECTERSMOB] invertedSet];
                 
                 NSString *filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];

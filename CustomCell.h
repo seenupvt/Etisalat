@@ -18,5 +18,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *duaPlay;
 
 @property (weak, nonatomic) IBOutlet UILabel *alertLbl;
+@property (weak, nonatomic) IBOutlet UITextView *txtVw;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
 
 @end

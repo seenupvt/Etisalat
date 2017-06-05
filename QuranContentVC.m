@@ -9,6 +9,7 @@
 #import "QuranContentVC.h"
 #import "DataUtility.h"
 #import "MBProgressHUD.h"
+#import "CustomCell.h"
 
 @interface QuranContentVC (){
     DataUtility *currentSongData1;
@@ -40,49 +41,29 @@
     UIBarButtonItem *eng_rtbtn = [[UIBarButtonItem alloc] initWithCustomView:rtbtn];
     self.navigationItem.rightBarButtonItem = eng_rtbtn;
     
-    self.scrollView.minimumZoomScale=1.0;
-    self.scrollView.maximumZoomScale=6.0;
-    self.scrollView.contentSize=self.quranQsImageVw.frame.size;
-    self.scrollView.delegate=self;
-    self.quranQsImageVw.center=self.scrollView.center;
-    //CGSizeMake(1280, 960);
+    self.contentNameLbl.text=[NSString stringWithFormat:@"%@",[self.listSongsArray objectAtIndex:self.selectedValue]];
     
-    //* swipe images in imageView *//
-    
-//    UISwipeGestureRecognizer *gestureRight;
-//    UISwipeGestureRecognizer *gestureLeft;
-//    gestureRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self      action:@selector(swipeRight:)];
-//    gestureLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeLeft:)];
-//    [gestureLeft setDirection:(UISwipeGestureRecognizerDirectionLeft)];
-//    [[self view] addGestureRecognizer:gestureRight];
-//    [[self view] addGestureRecognizer:gestureLeft];
-    
-    //self.contentNameLbl.text=[NSString stringWithFormat:@"%@",[self.listSongsArray objectAtIndex:self.selectedValue]];
-    [self refreshSongData];
-}
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
-{
-    return self.quranQsImageVw;
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
-{
     
 }
-
 
 - (void)refreshSongData {
     //self.tuneIdLbl.text = currentSongData.tuneid;
+    currentSongData1 = [self.listSongsArray objectAtIndex:self.selectedValue];
+    indexToShow=self.selectedValue;
+    self.navigationItem.title =currentSongData1.songname;
     [self loadImage];
+    
     __block MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.labelText = @"Loading data";
+   
     
     NSURL *scriptUrl = [NSURL URLWithString:@"http://www.apple.com/in/"];
     NSData *data = [NSData dataWithContentsOfURL:scriptUrl];
     if (data){
         NSLog(@"Device is connected to the internet");
         NSString *mobNo=[[NSUserDefaults standardUserDefaults] objectForKey:@"MobNumber"];
-        NSString *urlString = [NSString stringWithFormat:@"%@/songPlay.jsp?username=sk&password=sk123&mobno=%@&tuneid=%@",self.URL,mobNo,currentSongData1.tuneid];
+        NSString *urlString = [NSString stringWithFormat:@"%@/songPlay.jsp?username=sk&password=sk123&mobno=705093133&tuneid=%@",self.URL,currentSongData1.tuneid];
+        NSLog(@"%@",urlString);
         urlString = [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         NSURL *url=[NSURL URLWithString:urlString];
         NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url];
@@ -102,8 +83,10 @@
                 return;
             }
             else{
+                
                 NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[dict objectForKey:@"mp3"] options:0];
                 [self performSelectorOnMainThread:@selector(playAudioWith:) withObject:decodedData waitUntilDone:YES];
+                 [self loadImage];
             }
         }];
     }
@@ -119,19 +102,49 @@
 -(void)loadImage{
     NSLog(@"Selected index show:%d",indexToShow);
     currentSongData1 = [self.listSongsArray objectAtIndex:indexToShow];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSString *imgURL = [NSString stringWithFormat:@"%@%@/%@",self.URL,currentSongData1.imagepath,currentSongData1.imagename];
-        NSLog(@"%@",imgURL);
-        //NSString *imgURL = @"http://59.163.89.120:8080/islamicMobileApp/opt/mahantesh/Quran/QuranSuras/Images/1al-faatiHah.jpg";
-        NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:imgURL]];
-        
-        //set your image on main thread.
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.quranQsImageVw setImage:[UIImage imageWithData:data]];
-        });
-    });
-}
+    NSString * result = NULL;
+    NSError *err = nil;
+           // http://59.163.89.107:8023/islamicMobileApp/opt/mahantesh/Quran/QuranSuras/text/1002.txt,self.URL
+      
+        NSString *txtURL = [NSString stringWithFormat:@"%@%@%@",self.URL,currentSongData1.txtPath,currentSongData1.txtName];
+        NSURL * urlToRequest = [NSURL   URLWithString:txtURL];//like "http://www.example.org/abc.txt"
+            if(urlToRequest)
+        {
+            result = [NSString stringWithContentsOfURL: urlToRequest   encoding:NSUTF16StringEncoding error:&err];
+            if(!err){
+                
+                textArray = [result componentsSeparatedByString:@"\n"];
+                NSLog(@"Result::%@",textArray);
+                if(textArray.count>0){
+                self.textTable.delegate=self;
+                self.textTable.dataSource=self;
+                self.textTable.estimatedRowHeight = 44.0;
+                self.textTable.rowHeight = UITableViewAutomaticDimension;
+                [self.textTable reloadData];
+                    
+                
+                }
+              
+            }
+            if (err) {
+                NSLog(@"Error results::%@",err);
+            }
+        }
+    
+    }
 
+
+- (void) scrollTableView {
+    
+    float w = 1;
+    
+    CGPoint scrollPoint = self.textTable.contentOffset;
+    scrollPoint.y = scrollPoint.y + w;
+    if (scrollPoint.y >= self.textTable.contentSize.height - (self.textTable.frame.size.height - 100)  || scrollPoint.x <= -self.textTable.frame.size.height + 924) {
+        w *= -1;
+    }
+    [self.textTable setContentOffset: scrollPoint animated: NO];
+}
 - (void)playAudioWith:(NSData *)data {
     
     self.player = [[AVAudioPlayer alloc] initWithData:data error:nil];
@@ -139,39 +152,149 @@
     self.player.delegate=self;
     [self.player prepareToPlay];
     [self.player play];
+   int minutesDuration=[self timeFormat:self.player.duration];
+    NSLog(@"Time duration: %d",minutesDuration);
+    
+    int secDuration=(int)self.player.duration;
+    NSLog(@"Time duration in sec: %d",secDuration);
+    int x=(int)(secDuration/(2*textArray.count));
+    NSLog(@"Array : %ld Duration in Sec: %d Time interval : %d",textArray.count,secDuration,x);
+    [NSTimer scheduledTimerWithTimeInterval:0.15f target:self selector:@selector(scrollTableView) userInfo:nil repeats:YES];
+    
+    if (self.player.playing) {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"player_pause.png"] forState:UIControlStateNormal];
+        
+    }
+    else {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"playplayer.png"] forState:UIControlStateNormal];
+        
+    }
+}
+- (float)getAudioDuration {
+    return [self.player duration];
+}
+-(NSString*)timeFormat:(float)value{
+    
+    float minutes = floor(lroundf(value)/60);
+    float seconds = lroundf(value) - (minutes * 60);
+    
+    int roundedSeconds = (int)lroundf(seconds);
+    int roundedMinutes = (int)lroundf(minutes);
+    
+    NSString *time = [[NSString alloc]
+                      initWithFormat:@"%d:%02d",
+                      roundedMinutes, roundedSeconds];
+    return time;
+}
+
+
+- (IBAction)playerBtnClick:(id)sender {
+    if (self.player.playing) {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"playplayer.png"] forState:UIControlStateNormal];
+        [self.player pause];
+    }
+    else {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"player_pause.png"] forState:UIControlStateNormal];
+        [self.player play];
+    }
+    
+}
+
+- (IBAction)priviousPlay:(id)sender {
+    if (self.selectedValue>0) {
+        self.selectedValue--;
+        [self refreshSongData];
+    }
+}
+- (IBAction)nextPlay:(id)sender {
+    NSLog(@"%d --- %lu",self.selectedValue,self.listSongsArray.count-1);
+    if(self.selectedValue<self.listSongsArray.count-1) {
+        self.selectedValue++;
+        [self refreshSongData];
+    }
 }
 -(void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [self.player stop];
-       
+    if (self.player.playing) {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"player_pause.png"] forState:UIControlStateNormal];
+    }
+    else {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"playplayer.png"] forState:UIControlStateNormal];
+    }
+    
+}
+-(void)viewWillAppear:(BOOL)animated{
+    
+    [self refreshSongData];
+    if (self.player.playing) {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"player_pause.png"] forState:UIControlStateNormal];
+    }
+    else {
+        [self.playBtn setBackgroundImage:[UIImage imageNamed:@"playplayer.png"] forState:UIControlStateNormal];
+    }
+    
 }
 
-//- (void)swipeRight:(UISwipeGestureRecognizer *)gesture{
-//    if ((gesture.state == UIGestureRecognizerStateChanged) ||
-//        (gesture.state == UIGestureRecognizerStateEnded)) {
-//        
-//        if ((indexToShow-1) < 0) {
-//            indexToShow = (int)self.listSongsArray.count-1;
-//        }
-//        [self loadImage];
-//        //self.wallShowImage.image = [UIImage imageNamed:[imgArray objectAtIndex:indexToShow]];
-//        indexToShow--;
-//    }
-//}
-//
-//- (void)swipeLeft:(UISwipeGestureRecognizer *)gesture
-//{
-//    if ((gesture.state == UIGestureRecognizerStateChanged) ||
-//        (gesture.state == UIGestureRecognizerStateEnded)) {
-//        
-//        if ((indexToShow+1) > self.listSongsArray.count-1 ) {
-//            indexToShow = 0;
-//        }
-//        [self loadImage];
-//        //self.wallShowImage.image = [UIImage imageNamed:[imgArray objectAtIndex:indexToShow]];
-//        indexToShow++;
-//    }
-//}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    if (textArray.count> 0){
+        return textArray.count;
+    }
+    else
+        return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (textArray.count> 0){
+    
+    static NSString *strIndentifier = @"CustomCell";
+    CustomCell *cell = (CustomCell*)[tableView dequeueReusableCellWithIdentifier:strIndentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:strIndentifier];
+    }
+    //cell.textView.textColor=[UIColor blueColor];
+//        cell.backgroundView = [[UIImageView alloc] initWithImage:[ [UIImage imageNamed:@"textBreak.jpg"] stretchableImageWithLeftCapWidth:0.0 topCapHeight:5.0] ];
+        
+    NSString *decode= [NSString stringWithFormat:@"%@",[textArray objectAtIndex:indexPath.row]];
+        
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        paragraphStyle.lineHeightMultiple = 20.f;
+        paragraphStyle.lineSpacing = 20.f;
+        paragraphStyle.minimumLineHeight = 20.f;
+        paragraphStyle.maximumLineHeight = 40.f;
+        
+        UIFont *font = [UIFont fontWithName:@"AmericanTypewriter" size:22.f];
+        UIColor *color = [UIColor colorWithRed:15.0/255.0 green:108.0/255.0 blue:51.0/255.0 alpha:1];
+        
+        cell.textView.attributedText = [[NSAttributedString alloc] initWithString:
+                                        decode attributes:
+                                        @{NSParagraphStyleAttributeName : paragraphStyle, NSFontAttributeName : font,NSForegroundColorAttributeName:color}];
+    //cell.textView.text=decode;
+    
+    
+    //cell.txtVw.attributedText = [[NSAttributedString alloc] initWithString:decode attributes:ats];
+    return cell;
+    }
+    return 0;
+    
+}
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:[UIColor clearColor]];
+    
+    
+    
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+   
+    
+}
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    
+   
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

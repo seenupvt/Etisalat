@@ -21,11 +21,13 @@
 #import "MBProgressHUD.h"
 #import "DataUtility.h"
 #import "LogInVC.h"
+#import "PearlPrayVC.h"
 
 
 #import "ContextMenuCell.h"
 #import "YALContextMenuTableView.h"
 #import "YALNavigationBar.h"
+#import "MeccaLiveVC.h"
 #define degreesToRadian(x) (M_PI * (x) / 180.0)
 #define TRUE 0
 
@@ -376,11 +378,25 @@
     
 }
 -(void)duaOver{
+    NSURL *scriptUrl = [NSURL URLWithString:@"http://www.apple.com/in/"];
+    NSData *data = [NSData dataWithContentsOfURL:scriptUrl];
+    if (data){
+        NSLog(@"Device is connected to the internet");
    
     DuaVC *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"DuaVC"];
     obj.selectedStrng = @"Dua";
     obj.URL=self.URL;
     [self.navigationController pushViewController:obj animated:YES];
+    }
+    else{
+        NSLog(@"Device is not connected to the internet");
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"Device is not connected to the internet" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+        [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
+        
+        
+        
+    }
+    
     
 }
 -(void)guideOver{
@@ -452,11 +468,25 @@
     
 }
 -(void)quranOver{
+    NSURL *scriptUrl = [NSURL URLWithString:@"http://www.apple.com/in/"];
+    NSData *data = [NSData dataWithContentsOfURL:scriptUrl];
+    if (data){
+        NSLog(@"Device is connected to the internet");
     
     QuranVC *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"QuranVC"];
     obj.selectedStrng = @"Quran";
     obj.URL=self.URL;
     [self.navigationController pushViewController:obj animated:YES];
+    }
+   
+    else{
+            NSLog(@"Device is not connected to the internet");
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"Device is not connected to the internet" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+            [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
+           
+            
+        
+    }
     
 }
 - (IBAction)nabawiClick:(id)sender {
@@ -492,7 +522,7 @@
 }
 - (IBAction)rulesClick:(id)sender {
     
-    [self guideOver];
+    [self quranOver];
         
 }
 - (IBAction)quiblaClick:(id)sender {
@@ -523,7 +553,7 @@
 - (IBAction)meccaClick:(id)sender {
     
     
-    [self meccaVideoOver];
+    [self meccaLiveStream];
 //    if ([meccaStatus isEqualToString:@"0"]) {
 //        [self meccaVideoOver];
 //        
@@ -542,15 +572,36 @@
     
        
 }
+-(void)meccaLiveStream{
+    NSURL *scriptUrl = [NSURL URLWithString:@"http://www.apple.com/in/"];
+    NSData *data = [NSData dataWithContentsOfURL:scriptUrl];
+    if (data){
+        NSLog(@"Device is connected to the internet");
+    
+    MeccaLiveVC *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"MeccaLiveVC"];
+    obj.selectedStrng = @"Mecca Live Video";
+    obj.URL=self.URL;
+    [self.navigationController pushViewController:obj animated:YES];
+    }
+    else{
+        NSLog(@"Device is not connected to the internet");
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"Device is not connected to the internet" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+        [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
+        
+    }
+    
+    
+}
 
 -(void)meccaVideoOver{
     
     urlString=[NSString stringWithFormat:@"%@/Video/MakkahLive1-Segment1.mp4",self.URL];
+    //urlString=[NSString stringWithFormat:@"https://www.youtube.com/watch?v=7xUSH1QLHzk"];
     [self playVideo];
     
 }
 -(void)alertCreate{
-    UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Islamic" message:@"****Paid category****\n Please choose below package for access all paid categories..!!!" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Day Subscription(2 AFN)",@"Week Subscription(10 AFN)",@"Month Subscription(30 AFN)",nil];
+    UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Islamic" message:@"****Paid category****\n Please choose below package for access all paid categories..!!!" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Day Subscription(2 AFN)",@"Week Subscription(8 AFN)",@"Month Subscription(25 AFN)",nil];
     alert.tag=301;
     [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
     
@@ -567,37 +618,48 @@
     [self errorAlert];
     
 }
-- (IBAction)serviceClick:(id)sender {
-    //NSString *urlString=[NSString stringWithFormat:@"http://59.163.89.112/talkapis/securesms.php?campaignName=wifitest&languageType=english&groupName=RoshSec1&message=testing"];
-    
-     //http://203.174.27.21:6543/bulksmsmobapp/?campaignName=wifitest&languageType=english&groupName=RoshanSec&message=testing
+- (IBAction)serviceClick:(id)sender {   
     
     
-    NSString *myRequestString = [[NSString alloc] initWithFormat:@"campaignName=wifitest&languageType=english&groupName=RoshanSec&message=testing"];
-    
-    NSData *myRequestData = [ NSData dataWithBytes: [ myRequestString UTF8String ] length: [ myRequestString length ] ];
-    NSString *urlString = [[NSString alloc] initWithFormat:@"http://203.174.27.21:6543/bulksmsmobapp/?"];
-    NSMutableURLRequest *request = [ [ NSMutableURLRequest alloc ] initWithURL: [ NSURL URLWithString:urlString]];
-    
-    [request setHTTPMethod: @"POST"];
-    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
-    [request setHTTPBody: myRequestData];
-    NSURLResponse *response;
-    NSError *err;
-    NSData *returnData = [NSURLConnection sendSynchronousRequest: request returningResponse:nil error:&err];
-    NSString *content = [NSString stringWithUTF8String:[returnData bytes]];
-    NSLog(@"responseData: %@ \n return data: %@", content,returnData);
-    
-    NSString* responseString = [[NSString alloc] initWithData:returnData encoding:NSNonLossyASCIIStringEncoding];
-    NSLog(@"responseData: %@", responseString);
+    PearlPrayVC *obj=[self.storyboard instantiateViewControllerWithIdentifier:@"PearlPrayVC"];
+    obj.selectedStrng = @"Quran";
+    obj.URL=self.URL;
+    [self.navigationController pushViewController:obj animated:YES];
     
     
-        NSDictionary *jsonData =[NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingAllowFragments error:nil];
-        NSLog(@"Json data: %@",jsonData);
-        
-    UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Islamic" message:@"Post method" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-    [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
-        
+    
+    
+    
+//    //NSString *urlString=[NSString stringWithFormat:@"http://59.163.89.112/talkapis/securesms.php?campaignName=wifitest&languageType=english&groupName=RoshSec1&message=testing"];
+//    
+//     //http://203.174.27.21:6543/bulksmsmobapp/?campaignName=wifitest&languageType=english&groupName=RoshanSec&message=testing
+//    
+//    
+//    NSString *myRequestString = [[NSString alloc] initWithFormat:@"campaignName=wifitest&languageType=english&groupName=RoshanSec&message=testing"];
+//    
+//    NSData *myRequestData = [ NSData dataWithBytes: [ myRequestString UTF8String ] length: [ myRequestString length ] ];
+//    NSString *urlString = [[NSString alloc] initWithFormat:@"http://203.174.27.21:6543/bulksmsmobapp/?"];
+//    NSMutableURLRequest *request = [ [ NSMutableURLRequest alloc ] initWithURL: [ NSURL URLWithString:urlString]];
+//    
+//    [request setHTTPMethod: @"POST"];
+//    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
+//    [request setHTTPBody: myRequestData];
+//    NSURLResponse *response;
+//    NSError *err;
+//    NSData *returnData = [NSURLConnection sendSynchronousRequest: request returningResponse:nil error:&err];
+//    NSString *content = [NSString stringWithUTF8String:[returnData bytes]];
+//    NSLog(@"responseData: %@ \n return data: %@", content,returnData);
+//    
+//    NSString* responseString = [[NSString alloc] initWithData:returnData encoding:NSNonLossyASCIIStringEncoding];
+//    NSLog(@"responseData: %@", responseString);
+//    
+//    
+//        NSDictionary *jsonData =[NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingAllowFragments error:nil];
+//        NSLog(@"Json data: %@",jsonData);
+//        
+//    UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"Islamic" message:@"Post method" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+//    [alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
+    
     
         
 }
@@ -665,7 +727,7 @@
             
             selectedPackage=@"daily";
             
-            //[self chargingProcees];
+            [self chargingProcees];
             
             
         }

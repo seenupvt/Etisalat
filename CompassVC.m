@@ -27,6 +27,8 @@ CLLocationDirection     cityHeading;
 #define FONT_SIZE 14.0f
 #define CELL_CONTENT_WIDTH 320.0f
 #define CELL_CONTENT_MARGIN 10.0f
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -40,11 +42,7 @@ CLLocationDirection     cityHeading;
     [self.mapView addAnnotation:an1];
     
     [self.locationManager requestAlwaysAuthorization];
-//    Prelat=currentLocation.latitude;
-//    Prelon=currentLocation.longitude;
     
-//    MKAnnotationSub *an2 = [[MKAnnotationSub alloc] initWithCordinate:CLLocationCoordinate2DMake(Prelat,Prelon) tittle:@"Present Location" andSubTittle:nil];
-//    [self.mapView addAnnotation:an2];
     
     currentHeading=0.0;
     self.locationManager = [[CLLocationManager alloc] init];
@@ -52,7 +50,7 @@ CLLocationDirection     cityHeading;
     self.locationManager.distanceFilter = kCLDistanceFilterNone;
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
     
-   Prelat = self.locationManager.location.coordinate.latitude;
+    Prelat = self.locationManager.location.coordinate.latitude;
     Prelon = self.locationManager.location.coordinate.longitude;
     NSLog(@"Latt; %f    Long  %f  ", Prelat,Prelon);
     
@@ -62,6 +60,7 @@ CLLocationDirection     cityHeading;
     
     
     self.routeLine = [MKPolyline polylineWithCoordinates:coordinateArray count:2];
+ 
     [self.mapView setVisibleMapRect:[self.routeLine boundingMapRect]]; //If you want the route to be visible
     
     [self.mapView addOverlay:self.routeLine];
@@ -79,6 +78,7 @@ CLLocationDirection     cityHeading;
     
     
 }
+
 
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
@@ -199,6 +199,7 @@ CLLocationDirection     cityHeading;
         return nil;
 }
 
+
 -(MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id<MKOverlay>)overlay
 {
     if(overlay == self.routeLine)
@@ -206,10 +207,10 @@ CLLocationDirection     cityHeading;
         if(nil == self.routeLineView)
         {
             self.routeLineView = [[MKPolylineView alloc] initWithPolyline:self.routeLine];
-            self.routeLineView.fillColor = [UIColor redColor];
             self.routeLineView.strokeColor = [UIColor redColor];
-            self.routeLineView.lineWidth = 5;
-            
+            self.routeLineView.lineWidth = 8;
+            [self.routeLineView setLineDashPattern:
+             [NSArray arrayWithObjects:[NSNumber numberWithInt:8],[NSNumber numberWithInt:2],[NSNumber numberWithInt:1],[NSNumber numberWithInt:2], [NSNumber numberWithInt:1],[NSNumber numberWithInt:2], nil]];
         }
         
         return self.routeLineView;
@@ -217,7 +218,6 @@ CLLocationDirection     cityHeading;
     
     return nil;
 }
-
 
 - (void)locationError:(NSError *)error {
    

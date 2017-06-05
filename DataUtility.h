@@ -20,8 +20,8 @@
 @property (nonatomic, strong) NSString *quranName;
 @property (nonatomic, strong) NSString *tuneid;
 @property (nonatomic, strong) NSString *songname;
-@property (nonatomic,strong) NSString *imagename;
-@property (nonatomic,strong) NSString *imagepath;
+@property (nonatomic,strong) NSString *txtName;
+@property (nonatomic,strong) NSString *txtPath;
 @property (nonatomic,strong) NSString *category;
 @property (nonatomic,strong) NSString *chargestatus;
 

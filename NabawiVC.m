@@ -118,13 +118,6 @@
 }
 
 -(void)seeratViewLoad{
-    
-    UIImage *img=[UIImage imageNamed:@"Seerat Nabawi.png"];
-    imageVw=[[UIImageView alloc] initWithFrame:CGRectMake(0, 150, 100, 100)];
-    imageVw.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    imageVw.frame=CGRectMake((self.view.frame.size.width/2)-(imageVw.frame.size.width/2), 150, 100, 100);
-    imageVw.image=img;
-    [self.view addSubview:imageVw];
     textVw=[[UIWebView alloc]initWithFrame:CGRectMake(0, 250, self.view.frame.size.width, self.view.frame.size.height*2/3)];
     textVw.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     textVw.backgroundColor=[UIColor clearColor];
@@ -132,6 +125,13 @@
     
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle]pathForResource:@"SeeratNabawee" ofType:@"htm"]isDirectory:NO];
     [textVw loadRequest:[NSURLRequest requestWithURL:url]];
+    UIImage *img=[UIImage imageNamed:@"Seerat Nabawi.png"];
+    imageVw=[[UIImageView alloc] initWithFrame:CGRectMake(0, 150, 100, 100)];
+    imageVw.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+    imageVw.frame=CGRectMake((self.view.frame.size.width/2)-(imageVw.frame.size.width/2), 150, 100, 100);
+    imageVw.image=img;
+    [self.view addSubview:imageVw];
+    
     
         
     

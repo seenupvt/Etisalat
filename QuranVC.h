@@ -19,6 +19,5 @@
 @property (nonatomic,strong) NSString *selectedStrng;
 @property(nonatomic,strong) NSString *URL;
 @property (weak, nonatomic) IBOutlet UITableView *qurasTbl;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *quranSegment;
 
 @end

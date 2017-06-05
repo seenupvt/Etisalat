@@ -10,9 +10,10 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface QuranContentVC : UIViewController<AVAudioPlayerDelegate,UIScrollViewDelegate>{
+@interface QuranContentVC : UIViewController<AVAudioPlayerDelegate,UIScrollViewDelegate,UITableViewDataSource,UITableViewDelegate>{
     NSMutableString *selectedIndex;
     int indexToShow;
+    NSArray *textArray;
     
 }
 @property (nonatomic,strong) NSString *selectedStrng;
@@ -24,6 +25,11 @@
 @property BOOL scrubbing;
 - (void)refreshSongData;
 @property (weak, nonatomic) IBOutlet UIImageView *quranQsImageVw;
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+//@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIButton *prvBtn;
+@property (weak, nonatomic) IBOutlet UIButton *nxtBtn;
+@property (weak, nonatomic) IBOutlet UIButton *playBtn;
+@property (weak, nonatomic) IBOutlet UITableView *textTable;
+
 
 @end
